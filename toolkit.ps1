@@ -155,7 +155,8 @@ function Select-Tool {
 # Initialize the toolkit and get the list of available tools
 $AvailableTools = Initialize-Toolkit
 
-[System.Console]::Clear();
+# Clear the console after downloads and before showing the menu
+Clear-Host
 
-#Prompting user for tool selection
+# Prompting user for tool selection
 Select-Tool $AvailableTools
