@@ -121,6 +121,7 @@ function Select-Tool {
         [array]$AvailableTools
     )
 
+    [System.Console]::Clear();
     Write-Host "  _____   _____   _______          _ _    _ _   
  |  __ \ / ____| |__   __|        | | |  (_) |  
  | |__) | (___      | | ___   ___ | | | ___| |_ 
