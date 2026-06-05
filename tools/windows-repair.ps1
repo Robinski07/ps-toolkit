@@ -50,15 +50,15 @@ function Run-DismRestoreHealth {
 
 		# Handlers append to logfile and write to host in real time
 		$stdoutHandler = [System.Diagnostics.DataReceivedEventHandler]{ param($s,$e)
-			if ($e.Data) {
-				Write-Host $e.Data
-				Add-Content -Path $LogFile -Value $e.Data
+			if (-not [string]::IsNullOrEmpty($e.Data)) {
+				[System.Console]::WriteLine($e.Data)
+				[System.IO.File]::AppendAllText($LogFile, $e.Data + [System.Environment]::NewLine)
 			}
 		}
 		$stderrHandler = [System.Diagnostics.DataReceivedEventHandler]{ param($s,$e)
-			if ($e.Data) {
-				Write-Host $e.Data -ForegroundColor Yellow
-				Add-Content -Path $LogFile -Value $e.Data
+			if (-not [string]::IsNullOrEmpty($e.Data)) {
+				[System.Console]::WriteLine($e.Data)
+				[System.IO.File]::AppendAllText($LogFile, $e.Data + [System.Environment]::NewLine)
 			}
 		}
 
