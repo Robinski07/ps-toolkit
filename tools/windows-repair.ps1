@@ -35,8 +35,41 @@ function Run-DismRestoreHealth {
 	try {
 		$dismExe = Join-Path $env:windir 'System32\dism.exe'
 		if (-not (Test-Path $dismExe)) { $dismExe = 'dism.exe' }
-		$output = & $dismExe @args 2>&1
-		$output | Tee-Object -FilePath $LogFile
+
+		# Prepare process start info to capture output as it is produced
+		$psi = New-Object System.Diagnostics.ProcessStartInfo
+		$psi.FileName = $dismExe
+		$psi.Arguments = ($args -join ' ')
+		$psi.RedirectStandardOutput = $true
+		$psi.RedirectStandardError = $true
+		$psi.UseShellExecute = $false
+		$psi.CreateNoWindow = $true
+
+		$proc = New-Object System.Diagnostics.Process
+		$proc.StartInfo = $psi
+
+		# Handlers append to logfile and write to host in real time
+		$stdoutHandler = [System.Diagnostics.DataReceivedEventHandler]{ param($s,$e)
+			if ($e.Data) {
+				Write-Host $e.Data
+				Add-Content -Path $LogFile -Value $e.Data
+			}
+		}
+		$stderrHandler = [System.Diagnostics.DataReceivedEventHandler]{ param($s,$e)
+			if ($e.Data) {
+				Write-Host $e.Data -ForegroundColor Yellow
+				Add-Content -Path $LogFile -Value $e.Data
+			}
+		}
+
+		$proc.add_OutputDataReceived($stdoutHandler)
+		$proc.add_ErrorDataReceived($stderrHandler)
+
+		$proc.Start() | Out-Null
+		$proc.BeginOutputReadLine()
+		$proc.BeginErrorReadLine()
+		$proc.WaitForExit()
+
 		Write-Host "DISM finished. Log: $LogFile" -ForegroundColor Green
 	} catch {
 		Write-Host "DISM failed: $($_.Exception.Message)" -ForegroundColor Red
