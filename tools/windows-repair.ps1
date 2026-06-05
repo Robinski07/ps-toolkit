@@ -33,7 +33,10 @@ function Run-DismRestoreHealth {
 	Write-Host 'Running: DISM /Online /Cleanup-Image /RestoreHealth' -ForegroundColor Cyan
 	$args = '/Online','/Cleanup-Image','/RestoreHealth'
 	try {
-		& 'dism.exe' @args 2>&1 | Tee-Object -FilePath $LogFile
+		$dismExe = Join-Path $env:windir 'System32\dism.exe'
+		if (-not (Test-Path $dismExe)) { $dismExe = 'dism.exe' }
+		$output = & $dismExe @args 2>&1
+		$output | Tee-Object -FilePath $LogFile
 		Write-Host "DISM finished. Log: $LogFile" -ForegroundColor Green
 	} catch {
 		Write-Host "DISM failed: $($_.Exception.Message)" -ForegroundColor Red
@@ -45,7 +48,10 @@ function Run-SfcScan {
 	Write-Host 'Running: sfc /scannow' -ForegroundColor Cyan
 	$args = '/scannow'
 	try {
-		& 'sfc.exe' @args 2>&1 | Tee-Object -FilePath $LogFile
+		$sfcExe = Join-Path $env:windir 'System32\sfc.exe'
+		if (-not (Test-Path $sfcExe)) { $sfcExe = 'sfc.exe' }
+		$output = & $sfcExe $args 2>&1
+		$output | Tee-Object -FilePath $LogFile
 		Write-Host "SFC finished. Log: $LogFile" -ForegroundColor Green
 	} catch {
 		Write-Host "SFC failed: $($_.Exception.Message)" -ForegroundColor Red
