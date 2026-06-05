@@ -48,26 +48,25 @@ function Run-DismRestoreHealth {
 		$proc = New-Object System.Diagnostics.Process
 		$proc.StartInfo = $psi
 
-		# Handlers append to logfile and write to host in real time
-		$stdoutHandler = [System.Diagnostics.DataReceivedEventHandler]{ param($s,$e)
-			if (-not [string]::IsNullOrEmpty($e.Data)) {
-				[System.Console]::WriteLine($e.Data)
-				[System.IO.File]::AppendAllText($LogFile, $e.Data + [System.Environment]::NewLine)
-			}
-		}
-		$stderrHandler = [System.Diagnostics.DataReceivedEventHandler]{ param($s,$e)
-			if (-not [string]::IsNullOrEmpty($e.Data)) {
-				[System.Console]::WriteLine($e.Data)
-				[System.IO.File]::AppendAllText($LogFile, $e.Data + [System.Environment]::NewLine)
-			}
-		}
-
-		$proc.add_OutputDataReceived($stdoutHandler)
-		$proc.add_ErrorDataReceived($stderrHandler)
-
 		$proc.Start() | Out-Null
-		$proc.BeginOutputReadLine()
-		$proc.BeginErrorReadLine()
+
+		# Read stdout line-by-line on the current thread to stream output live
+		$stdOut = $proc.StandardOutput
+		while (-not $stdOut.EndOfStream) {
+			$line = $stdOut.ReadLine()
+			if ($line -ne $null) {
+				[System.Console]::WriteLine($line)
+				[System.IO.File]::AppendAllText($LogFile, $line + [System.Environment]::NewLine)
+			}
+		}
+
+		# Capture any remaining stderr and write it once done
+		$err = $proc.StandardError.ReadToEnd()
+		if (-not [string]::IsNullOrEmpty($err)) {
+			[System.Console]::WriteLine($err)
+			[System.IO.File]::AppendAllText($LogFile, $err + [System.Environment]::NewLine)
+		}
+
 		$proc.WaitForExit()
 
 		Write-Host "DISM finished. Log: $LogFile" -ForegroundColor Green
