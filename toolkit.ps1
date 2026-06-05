@@ -108,6 +108,23 @@ function Get-Tools {
         }
     }
 
+    # If a local 'tools' folder exists beside this script, prefer local developer copies by copying them into the temp cache (overwrite).
+    try {
+        $localToolsRoot = $null
+        if ($PSScriptRoot) { $localToolsRoot = Join-Path $PSScriptRoot 'tools' }
+        if (-not $localToolsRoot -or -not (Test-Path $localToolsRoot)) { $localToolsRoot = Join-Path (Get-Location) 'tools' }
+        if (Test-Path $localToolsRoot) {
+            $localFiles = Get-ChildItem -Path $localToolsRoot -Filter '*.ps1' -File -ErrorAction SilentlyContinue
+            foreach ($lf in $localFiles) {
+                $dest = Join-Path $toolDirectory $lf.Name
+                Copy-Item -Path $lf.FullName -Destination $dest -Force
+                Write-Host "Using local tool copy: $($lf.Name) -> $dest" -ForegroundColor DarkGray
+            }
+        }
+    } catch {
+        # ignore any copy errors and continue
+    }
+
     return Get-ChildItem -Path $toolDirectory -Filter '*.ps1' | Sort-Object Name
 }
 
