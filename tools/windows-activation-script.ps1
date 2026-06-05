@@ -58,8 +58,12 @@ function Run-DownloadedScript {
 	Write-Host "Executing activation script: $ScriptPath" -ForegroundColor Cyan
 	$psExe = (Get-Command powershell).Source
 	$args = '-NoProfile','-ExecutionPolicy','Bypass','-File',"`"$ScriptPath`""
-	Start-Process -FilePath $psExe -ArgumentList $args -Wait -NoNewWindow -RedirectStandardOutput $logFile -RedirectStandardError $logFile
-	Write-Host "Activation run finished. Log saved to: $logFile" -ForegroundColor Green
+	try {
+		& $psExe @args 2>&1 | Tee-Object -FilePath $logFile
+		Write-Host "Activation run finished. Log saved to: $logFile" -ForegroundColor Green
+	} catch {
+		Write-Host "Activation run failed: $($_.Exception.Message)" -ForegroundColor Red
+	}
 }
 
 function Show-Menu {

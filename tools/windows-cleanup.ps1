@@ -51,8 +51,12 @@ function Run-DismResetBase {
 
     Write-Host 'Running: DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase' -ForegroundColor Cyan
     $args = '/Online','/Cleanup-Image','/StartComponentCleanup','/ResetBase'
-    Start-Process -FilePath 'dism.exe' -ArgumentList $args -NoNewWindow -Wait -RedirectStandardOutput $LogFile -RedirectStandardError $LogFile
-    Write-Host "DISM ResetBase finished. Log: $LogFile" -ForegroundColor Green
+    try {
+        & 'dism.exe' @args 2>&1 | Tee-Object -FilePath $LogFile
+        Write-Host "DISM ResetBase finished. Log: $LogFile" -ForegroundColor Green
+    } catch {
+        Write-Host "DISM ResetBase failed: $($_.Exception.Message)" -ForegroundColor Red
+    }
 }
 
 function Show-Menu {

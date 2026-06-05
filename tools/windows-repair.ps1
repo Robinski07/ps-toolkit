@@ -32,16 +32,24 @@ function Run-DismRestoreHealth {
 	param([string]$LogFile)
 	Write-Host 'Running: DISM /Online /Cleanup-Image /RestoreHealth' -ForegroundColor Cyan
 	$args = '/Online','/Cleanup-Image','/RestoreHealth'
-	Start-Process -FilePath 'dism.exe' -ArgumentList $args -NoNewWindow -Wait -RedirectStandardOutput $LogFile -RedirectStandardError $LogFile
-	Write-Host "DISM finished. Log: $LogFile" -ForegroundColor Green
+	try {
+		& 'dism.exe' @args 2>&1 | Tee-Object -FilePath $LogFile
+		Write-Host "DISM finished. Log: $LogFile" -ForegroundColor Green
+	} catch {
+		Write-Host "DISM failed: $($_.Exception.Message)" -ForegroundColor Red
+	}
 }
 
 function Run-SfcScan {
 	param([string]$LogFile)
 	Write-Host 'Running: sfc /scannow' -ForegroundColor Cyan
 	$args = '/scannow'
-	Start-Process -FilePath 'sfc.exe' -ArgumentList $args -NoNewWindow -Wait -RedirectStandardOutput $LogFile -RedirectStandardError $LogFile
-	Write-Host "SFC finished. Log: $LogFile" -ForegroundColor Green
+	try {
+		& 'sfc.exe' @args 2>&1 | Tee-Object -FilePath $LogFile
+		Write-Host "SFC finished. Log: $LogFile" -ForegroundColor Green
+	} catch {
+		Write-Host "SFC failed: $($_.Exception.Message)" -ForegroundColor Red
+	}
 }
 
 function Show-Menu {
