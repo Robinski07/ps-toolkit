@@ -9,3 +9,7 @@ Open a PowerShell window and run the follwing command:
 
 ## Support
 If you need any help you can write me under the following mail: support@robinski.ch
+It may take a few Days for me to reply.
+
+## Contribute
+The project is currently only in test phase as I'm learning PowerShell, so there will be many errors and other things that could be done better. 
