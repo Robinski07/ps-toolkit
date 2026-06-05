@@ -121,7 +121,6 @@ function Select-Tool {
         [array]$AvailableTools
     )
 
-    [System.Console]::Clear();
     Write-Host "  _____   _____   _______          _ _    _ _   
  |  __ \ / ____| |__   __|        | | |  (_) |  
  | |__) | (___      | | ___   ___ | | | ___| |_ 
@@ -155,6 +154,8 @@ function Select-Tool {
 # Main
 # Initialize the toolkit and get the list of available tools
 $AvailableTools = Initialize-Toolkit
+
+[System.Console]::Clear();
 
 #Prompting user for tool selection
 Select-Tool $AvailableTools
