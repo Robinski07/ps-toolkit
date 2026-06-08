@@ -5,7 +5,7 @@ PS-Toolkit is a small project to put all of the scripts that I use daily into on
 
 ## How to run
 Open a PowerShell window and run the follwing command:
-`irm https://ps-toolkit.robinski.ch | iex`
+`irm https://ps-toolkit.robinski.ch | iex`   
 If the site is down you alternatively can use:
 `irm https://raw.githubusercontent.com/Robinski07/ps-toolkit/refs/heads/main/toolkit.ps1 | iex`
 
